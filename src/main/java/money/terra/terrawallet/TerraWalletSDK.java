@@ -3,12 +3,6 @@ package money.terra.terrawallet;
 import org.json.JSONObject;
 
 public class TerraWalletSDK {
-    /*
-    gradle에 추가 해야함.
-
-    implementation 'org.web3j:crypto:4.5.17'
-    implementation 'com.google.code.gson:gson'
-    * */
 
     public static String[] getNewWallet() {
         String[] keys = KeyPair.generate(KeyPair.generateMnemonic(), 330);

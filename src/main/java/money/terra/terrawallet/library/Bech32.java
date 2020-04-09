@@ -1,15 +1,13 @@
-package money.terra.terrawallet.library.Bech32;
+package money.terra.terrawallet.library;
 
 //https://github.com/WebOfTrustInfo/txref-conversion-java/blob/master/src/main/java/info/weboftrust/txrefconversion/Bech32.java
 //MIT license
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class Bech32 {
 
     public static final String CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
-    public static final char SEPARATOR = (char) 0x31;	// '1'
 
     private Bech32() { }
 
@@ -32,53 +30,6 @@ public class Bech32 {
         System.arraycopy(xlat, 0, ret, hrp.length + 1, xlat.length);
 
         return new String(ret);
-    }
-
-    public static HrpAndData bech32Decode(String bech) {
-
-        if (!bech.equals(bech.toLowerCase()) && !bech.equals(bech.toUpperCase()))  {
-            throw new IllegalArgumentException("bech32 cannot mix upper and lower case");
-        }
-
-        byte[] buffer = bech.getBytes();
-        for (byte b : buffer) {
-            if (b < 0x21 || b > 0x7e) throw new IllegalArgumentException("bech32 characters out of range");
-        }
-
-        bech = bech.toLowerCase();
-        int pos = bech.lastIndexOf("1");
-        if (pos < 1) {
-            throw new IllegalArgumentException("bech32 missing separator");
-        } else if (pos + 7 > bech.length()) {
-            throw new IllegalArgumentException("bech32 separator misplaced");
-        } else if (bech.length() < 8) {
-            throw new IllegalArgumentException("bech32 input too short");
-        } else if (bech.length() > 90) {
-            throw new IllegalArgumentException("bech32 input too long");
-        }
-
-        String s = bech.substring(pos + 1);
-        for (int i = 0; i < s.length(); i++) {
-            if (CHARSET.indexOf(s.charAt(i)) == -1) {
-                throw new IllegalArgumentException("bech32 characters  out of range");
-            }
-        }
-
-        byte[] hrp = bech.substring(0, pos).getBytes();
-
-        byte[] data = new byte[bech.length() - pos - 1];
-        for (int j = 0, i = pos + 1; i < bech.length(); i++, j++) {
-            data[j] = (byte)CHARSET.indexOf(bech.charAt(i));
-        }
-
-        if (!verifyChecksum(hrp, data)) {
-            throw new IllegalArgumentException("invalid bech32 checksum");
-        }
-
-        byte[] ret = new byte[data.length - 6];
-        System.arraycopy(data, 0, ret, 0, data.length - 6);
-
-        return new HrpAndData(hrp, ret);
     }
 
     private static int polymod(byte[] values)  {
@@ -120,17 +71,6 @@ public class Bech32 {
         return ret;
     }
 
-    private static boolean verifyChecksum(byte[] hrp, byte[] data) {
-
-        byte[] exp = hrpExpand(hrp);
-
-        byte[] values = new byte[exp.length + data.length];
-        System.arraycopy(exp, 0, values, 0, exp.length);
-        System.arraycopy(data, 0, values, exp.length, data.length);
-
-        return (1 == polymod(values));
-    }
-
     private static byte[] createChecksum(byte[] hrp, byte[] data)  {
 
         byte[] zeroes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -150,45 +90,11 @@ public class Bech32 {
         return ret;
     }
 
-    public static class HrpAndData {
+    public static byte[] toWords(byte[] data) {
+        final int inBits = 8;
+        final int outBits = 5;
+        final boolean pad = true;
 
-        public byte[] hrp;
-        public byte[] data;
-
-        public HrpAndData(byte[] hrp, byte[] data) { this.hrp = hrp; this.data = data; }
-        public byte[] getHrp() { return this.hrp; }
-        public byte[] getData() { return this.data; }
-
-        @Override
-        public String toString() {
-            return "HrpAndData [hrp=" + Arrays.toString(hrp) + ", data=" + Arrays.toString(data) + "]";
-        }
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + Arrays.hashCode(data);
-            result = prime * result + Arrays.hashCode(hrp);
-            return result;
-        }
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            HrpAndData other = (HrpAndData) obj;
-            if (!Arrays.equals(data, other.data))
-                return false;
-            if (!Arrays.equals(hrp, other.hrp))
-                return false;
-            return true;
-        }
-    }
-
-    public static byte[] convert(byte[] data, int inBits, int outBits, boolean pad) {
         int value = 0;
         int bits = 0;
         int maxV = (1 << outBits) - 1;
@@ -215,9 +121,5 @@ public class Bech32 {
         }
 
         return result.array();
-    }
-
-    public static byte[] toWords(byte[] bytes) {
-        return convert(bytes, 8, 5, true);
     }
 }

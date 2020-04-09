@@ -8,8 +8,7 @@ import java.nio.ByteBuffer;
 /**
  * Offers a {@code hash(byte[])} method for hashing messages with SHA-256.
  */
-public class Sha256
-{
+public class Sha256 {
     private static final int[] K = { 0x428a2f98, 0x71374491, 0xb5c0fbcf,
             0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
             0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74,
@@ -39,8 +38,7 @@ public class Sha256
      * @param message The bytes to hash.
      * @return The hash's bytes.
      */
-    public static byte[] hash(byte[] message)
-    {
+    public static byte[] hash(byte[] message) {
         // let H = H0
         System.arraycopy(H0, 0, H, 0, H0.length);
 

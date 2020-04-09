@@ -1,6 +1,6 @@
 package money.terra.terrawallet;
 
-import money.terra.terrawallet.library.Bech32.Bech32;
+import money.terra.terrawallet.library.Bech32;
 
 import money.terra.terrawallet.library.Ripemd160;
 import money.terra.terrawallet.library.Sha256;
@@ -13,7 +13,12 @@ public class KeyPair {
     private static final String prefix = "terra";
 
     static String getTerraAddress(byte[] publicKey) {
-        return Bech32.bech32Encode(prefix.getBytes(), Bech32.toWords(Ripemd160.getHash(Sha256.hash(publicKey))));
+        byte[] sha256Hashed = Sha256.hash(publicKey);
+        byte[] ripemd160Hashed = Ripemd160.getHash(sha256Hashed);
+        byte[] toWords = Bech32.toWords(ripemd160Hashed);
+        String bech32Encoded = Bech32.bech32Encode(prefix.getBytes(), toWords);
+
+        return bech32Encoded;
     }
 
     static String generateMnemonic() {

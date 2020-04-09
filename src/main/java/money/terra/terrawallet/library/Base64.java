@@ -7,7 +7,6 @@
 
 package money.terra.terrawallet.library;
 
-import java.io.UnsupportedEncodingException;
 import java.util.BitSet;
 
 /**
@@ -31,10 +30,6 @@ public class Base64 {
 
     private static final int[] power = {1, 2, 4, 8, 16, 32, 64, 128};
 
-    public Base64() {
-
-    }
-
     private String mapAlphabet(byte[] buffer) {
         String retval = "";
         int until = buffer.length;
@@ -55,10 +50,6 @@ public class Base64 {
         }
         artificialtailing = 0;
         return retval;
-    }
-
-    public String encode(String word) throws UnsupportedEncodingException {
-        return encode(word.getBytes("UTF8"));
     }
 
     public String encode(byte[] word) {
@@ -96,55 +87,5 @@ public class Base64 {
         }
         retval = mapAlphabet(intarr);
         return retval;
-    }
-
-    public byte[] decode(String base64) {
-        BitSet bits;
-        // ignore padding
-        if (base64.charAt(base64.length() - 1) == '=') {
-            artificialtailing = 1;
-            if (base64.charAt(base64.length() - 2) == '=') {
-                artificialtailing = 2;
-            }
-        }
-        // create array of alphabet indexes (values)
-        int[] alphabetIndexArray = new int[base64.length() - artificialtailing];
-        for (int i = 0; i < base64.length() - artificialtailing; i++) {
-            alphabetIndexArray[i] = Char2AlphabetIndex(base64.charAt(i));
-        }
-        // populate the bit set
-        int bitSetSize = alphabetIndexArray.length * 6;
-        bits = new BitSet(bitSetSize);
-        int bitSetPointer = 0;
-        for (int i = 0; i < alphabetIndexArray.length; i++) {
-            for (int j = 5; j >= 0; j--) {
-                bits.set(bitSetPointer++, (power[j] & alphabetIndexArray[i]) != 0);
-            }
-        }
-        byte[] bytes = new byte[bitSetSize / 8];
-        int bcounter = 0;
-        for (int i = 0; i < bytes.length * 8; i += 8) {
-            for (int j = 0; j < 8; j++) {
-                if (bits.get(i + j)) {
-                    bytes[bcounter] += power[7 - j];
-                }
-            }
-            bcounter++;
-        }
-        artificialtailing = 0;
-        return bytes;
-    }
-
-    private int Char2AlphabetIndex(char c) {
-        if (c == '+') {
-            return alphabet.length - 2;
-        } else if (c == '/') {
-            return alphabet.length - 1;
-        } else if (c >= 'a') {
-            return c - 'A' - 6;
-        } else if (c <= '9') {
-            return c - '0' + Char2AlphabetIndex('z') + 1;
-        }
-        return c - 'A';
     }
 }

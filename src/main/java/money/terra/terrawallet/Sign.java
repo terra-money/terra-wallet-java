@@ -24,7 +24,6 @@ public class Sign {
     private String chainId;
 
     Sign(String hexPrivateKey, String hexPublicKey, String sequence, String accountNumber, String chainId) {
-
         this.privateKey = new BigInteger(hexPrivateKey, 16).toByteArray();
         this.publicKey = new BigInteger(hexPublicKey, 16).toByteArray();
         this.sequence = sequence;
@@ -36,9 +35,7 @@ public class Sign {
 
         JSONObject signMessage = createSignMessage(message);
 
-        //sort
         String sortedJson = new Gson().toJson(jsonSort(signMessage));
-
         byte[] signedMessage = signWithPrivateKey(sortedJson);
 
         JSONObject signatureJson = createSignature(signedMessage);
@@ -48,7 +45,7 @@ public class Sign {
         return broadcastBody;
     }
 
-    private JSONObject createSignMessage(JSONObject json) throws Exception {
+    private JSONObject createSignMessage(JSONObject json) {
 
         JSONObject json_fee = json.getJSONObject("fee");
         JSONArray amount = json_fee.getJSONArray("amount");
@@ -71,6 +68,56 @@ public class Sign {
 
 
         return message;
+    }
+
+    private JSONObject createSignature(byte[] signature) {
+        JSONObject json = new JSONObject();
+
+        json.put("signature", Base64.encodeBytes(signature));
+        json.put("account_number", this.accountNumber);
+        json.put("sequence", this.sequence);
+
+        JSONObject sub = new JSONObject();
+        sub.put("type", "tendermint/PubKeySecp256k1");
+        sub.put("value", Base64.encodeBytes(this.publicKey));
+
+        json.put("pub_key", sub);
+        return json;
+    }
+
+    private byte[] signWithPrivateKey(String message) {
+        byte[] hashedMessageBytes = Sha256.hash(message.getBytes());
+
+        ECKeyPair keyPair2 = Bip32ECKeyPair.create(this.privateKey);
+        ECDSASignature signature = keyPair2.sign(hashedMessageBytes);
+        byte[] r = signature.r.toByteArray();
+        byte[] s = signature.s.toByteArray();
+        int index = 0;
+
+        int start = (r.length > 32) ? r.length - 32 : 0;
+        byte[] result = new byte[r.length + s.length - start];
+        for(int i=start; i<r.length; i++) {
+            result[index++] = r[i];
+        }
+        for(int i=0; i<s.length; i++) {
+            result[index++] = s[i];
+        }
+
+        return result;
+    }
+
+    private JSONObject createSignedTx(JSONObject json, JSONObject signature) {
+        JSONArray array = new JSONArray();
+        array.put(signature);
+        json.put("signatures", array);
+        return json;
+    }
+
+    private JSONObject createBroadcastBody(JSONObject json, String returnType) {
+        JSONObject data = new JSONObject();
+        data.put("tx", json);
+        data.put("mode", returnType);
+        return data;
     }
 
     private TreeMap jsonSort(JSONObject signMessage) throws Exception {
@@ -107,63 +154,5 @@ public class Sign {
         }
 
         return result;
-    }
-
-    private JSONObject createSignature(byte[] signature) throws Exception {
-        JSONObject json = new JSONObject();
-
-        json.put("signature", Base64.encodeBytes(signature));
-        json.put("account_number", this.accountNumber);
-        json.put("sequence", this.sequence);
-
-        JSONObject sub = new JSONObject();
-        sub.put("type", "tendermint/PubKeySecp256k1");
-        sub.put("value", Base64.encodeBytes(this.publicKey));
-
-        json.put("pub_key", sub);
-        return json;
-    }
-
-    private byte[] signWithPrivateKey(String message) {
-        byte[] hashedMessageBytes = Sha256.hash(message.getBytes());
-
-        String result2 = "";
-        for(int i=0; i<hashedMessageBytes.length; i++) {
-            result2 += hashedMessageBytes[i] + ", ";
-        }
-
-        ECKeyPair keyPair2 = Bip32ECKeyPair.create(this.privateKey);
-        ECDSASignature signature = keyPair2.sign(hashedMessageBytes);
-        byte[] r = signature.r.toByteArray();
-        byte[] s = signature.s.toByteArray();
-        int index = 0;
-
-        int start = (r.length > 32) ? r.length - 32 : 0;
-        byte[] result = new byte[r.length + s.length - start];
-        for(int i=start; i<r.length; i++) {
-            result[index++] = r[i];
-        }
-        for(int i=0; i<s.length; i++) {
-            result[index++] = s[i];
-        }
-        String result3 = "";
-        for(int i=0; i<result.length; i++) {
-            result3 += result[i] + ", ";
-        }
-        return result;
-    }
-
-    private JSONObject createSignedTx(JSONObject json, JSONObject signature) throws Exception {
-        JSONArray array = new JSONArray();
-        array.put(signature);
-        json.put("signatures", array);
-        return json;
-    }
-
-    private JSONObject createBroadcastBody(JSONObject json, String returnType) throws Exception {
-        JSONObject data = new JSONObject();
-        data.put("tx", json);
-        data.put("mode", returnType);
-        return data;
     }
 }
