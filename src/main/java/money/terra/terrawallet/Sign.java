@@ -2,6 +2,8 @@ package money.terra.terrawallet;
 
 import com.google.gson.Gson;
 
+import money.terra.terrawallet.library.Base64;
+import money.terra.terrawallet.library.Sha256;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.web3j.crypto.Bip32ECKeyPair;
@@ -12,8 +14,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
-
-import io.github.novacrypto.hashing.Sha256;
 
 public class Sign {
 
@@ -112,20 +112,20 @@ public class Sign {
     private JSONObject createSignature(byte[] signature) throws Exception {
         JSONObject json = new JSONObject();
 
-        json.put("signature", Base64.getEncoder().encodeToString(signature));
+        json.put("signature", Base64.encodeBytes(signature));
         json.put("account_number", this.accountNumber);
         json.put("sequence", this.sequence);
 
         JSONObject sub = new JSONObject();
         sub.put("type", "tendermint/PubKeySecp256k1");
-        sub.put("value", Base64.getEncoder().encodeToString(this.publicKey));
+        sub.put("value", Base64.encodeBytes(this.publicKey));
 
         json.put("pub_key", sub);
         return json;
     }
 
     private byte[] signWithPrivateKey(String message) {
-        byte[] hashedMessageBytes = Sha256.sha256(message.getBytes());
+        byte[] hashedMessageBytes = Sha256.hash(message.getBytes());
 
         String result2 = "";
         for(int i=0; i<hashedMessageBytes.length; i++) {

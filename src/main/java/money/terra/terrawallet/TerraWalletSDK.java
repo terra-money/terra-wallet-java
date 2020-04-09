@@ -6,7 +6,6 @@ public class TerraWalletSDK {
     /*
     gradle에 추가 해야함.
 
-    implementation 'io.github.novacrypto:Hash160:2019.01.27'
     implementation 'org.web3j:crypto:4.5.17'
     implementation 'com.google.code.gson:gson'
     * */

@@ -1,19 +1,19 @@
 package money.terra.terrawallet;
 
-import money.terra.terrawallet.Bech32.Bech32;
+import money.terra.terrawallet.library.Bech32.Bech32;
 
+import money.terra.terrawallet.library.Ripemd160;
+import money.terra.terrawallet.library.Sha256;
 import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.MnemonicUtils;
 
 import java.security.SecureRandom;
 
-import io.github.novacrypto.hashing.Hash160;
-
 public class KeyPair {
     private static final String prefix = "terra";
 
     static String getTerraAddress(byte[] publicKey) {
-        return Bech32.encode(prefix, Bech32.toWords(Hash160.hash160(publicKey)));
+        return Bech32.bech32Encode(prefix.getBytes(), Bech32.toWords(Ripemd160.getHash(Sha256.hash(publicKey))));
     }
 
     static String generateMnemonic() {

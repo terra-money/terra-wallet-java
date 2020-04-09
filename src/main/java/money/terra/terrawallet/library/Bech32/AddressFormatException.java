@@ -1,4 +1,4 @@
-package money.terra.terrawallet.Bech32;
+package money.terra.terrawallet.library.Bech32;
 
 public class AddressFormatException extends IllegalArgumentException {
     public AddressFormatException() {
