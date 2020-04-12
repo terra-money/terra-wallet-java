@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class TerraWalletTest {
     @Test
     public void walletGenerateAndRecoverTest() throws Exception {
-        final int count = 1;
+        final int count = 100;
 
         ArrayList<String[]> wallets = new ArrayList();
         // generate

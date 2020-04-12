@@ -54,9 +54,13 @@ public class KeyPair {
 
     private static String byteArrayToHex(byte[] a) {
         StringBuilder sb = new StringBuilder();
-        for(final byte b: a) {
+        for(int i=0; i<a.length; i++) {
+            byte b = a[i];
+            if (i==0 && b == 0) {
+                continue;
+            }
             sb.append(String.format("%02x", b & 0xff));
         }
-        return sb.toString().replaceFirst("00","");
+        return sb.toString();
     }
 }
