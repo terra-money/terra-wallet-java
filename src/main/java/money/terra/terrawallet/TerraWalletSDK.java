@@ -13,6 +13,10 @@ public class TerraWalletSDK {
         }
     }
 
+    public static String[] getNewWalletFromSeed(String mnemonic) {
+        return getNewWalletFromSeed(mnemonic, 330);
+    }
+
     public static String[] getNewWalletFromSeed(String mnemonic, int bip) {
         String[] keys = KeyPair.generate(mnemonic, bip);
         if (keys != null) {
