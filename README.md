@@ -39,9 +39,9 @@ public class Example {
         // ex) police head unfair frozen animal sketch peace budget orange foot fault quantum caution make reject fruit minimum east stuff leisure seminar ocean credit ridge, 24 words
     }
 
-    public void loadWallet(String mnemonicWords) {
-        String[] wallet = TerraWalletSDK.getNewWalletFromSeed(mnemonicWords, 330);
-        // default bip is 330
+    public void loadWallet(String mnemonicWords, int bip) {
+        String[] wallet = TerraWalletSDK.getNewWalletFromSeed(mnemonicWords, bip);
+        // recommend bip is 330
 
         String privateKey = wallet[0];
         // ex) 99b555956f56a2889c78594cfac8d8aa6d0a6e75bd3ccfefb5248b6b83d8096c, 32bytes
