@@ -18,8 +18,9 @@ public class TerraWalletTest {
 
             String privateKey = wallet[0];
             String publicKey = wallet[1];
-            String address = wallet[2];
-            String mnemonic = wallet[3];
+            String publicKey64 = wallet[2];
+            String address = wallet[3];
+            String mnemonic = wallet[4];
 
             Assert.assertEquals("generated["+i+"], privateKey is wrong.", 64, privateKey.length());
             Assert.assertEquals("generated["+i+"], publicKey is wrong.", 66, publicKey.length());
@@ -36,18 +37,21 @@ public class TerraWalletTest {
         Assert.assertEquals("items generated not enough.", wallets.size(), count);
 
         for(int i=0; i<wallets.size(); i++) {
-            String[] wallet = TerraWalletSDK.getNewWalletFromSeed(wallets.get(i)[3],330);
+
+            String mnemonic = wallets.get(i)[4];
+            String[] wallet = TerraWalletSDK.getNewWalletFromSeed(mnemonic,330);
 
             String privateKey = wallet[0];
-            String publicKey = wallet[1];
-            String address = wallet[2];
+            String publicKey = wallet[1];   //compressed public key.
+            String publicKey64 = wallet[2];   //'un'compressed public key.
+            String address = wallet[3];
 
             //check privateKey(recovered and generated is equal)
             Assert.assertEquals("recovered["+i+"], privateKey is wrong.", wallets.get(i)[0], privateKey);
             //check publicKey(recovered and generated is equal)
             Assert.assertEquals("recovered["+i+"], publicKey is wrong.", wallets.get(i)[1], publicKey);
             //check address(recovered and generated is equal)
-            Assert.assertEquals("recovered["+i+"], address is wrong.", wallets.get(i)[2], address);
+            Assert.assertEquals("recovered["+i+"], address is wrong.", wallets.get(i)[3], address);
         }
 
     }

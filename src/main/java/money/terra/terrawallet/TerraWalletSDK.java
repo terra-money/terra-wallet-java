@@ -5,12 +5,7 @@ import org.json.JSONObject;
 public class TerraWalletSDK {
 
     public static String[] getNewWallet() {
-        String[] keys = KeyPair.generate(KeyPair.generateMnemonic(), 330);
-        if (keys != null) {
-            return keys;
-        } else {
-            return new String[]{"", "", "", ""};
-        }
+        return getNewWalletFromSeed(KeyPair.generateMnemonic(), 330);
     }
 
     public static String[] getNewWalletFromSeed(String mnemonic) {
@@ -18,11 +13,15 @@ public class TerraWalletSDK {
     }
 
     public static String[] getNewWalletFromSeed(String mnemonic, int bip) {
-        String[] keys = KeyPair.generate(mnemonic, bip);
-        if (keys != null) {
-            return keys;
-        } else {
-            return new String[]{"", "", "", ""};
+        WalletModel wallet = KeyPair.generate(mnemonic, bip);
+        try {
+            String hexPrivateKey = KeyPair.byteArrayToHex(wallet.privateKey);
+            String hexPublicKey32 = KeyPair.byteArrayToHex(wallet.publicKey32);
+            String hexPublicKey64 = KeyPair.byteArrayToHex(wallet.publicKey64); //'un'compressed public key.
+            String terraAddress = wallet.getTerraAddress();
+            return new String[]{hexPrivateKey, hexPublicKey32, hexPublicKey64, terraAddress, mnemonic};
+        } catch (Exception e) {
+            return new String[]{"", "", "", "", ""};
         }
     }
 
