@@ -12,6 +12,32 @@ public class WalletModel {
     byte[] publicKey64; //'un'compressed public key. prefix(1byte) + data(64bytes)
     String mnemonic;
 
+    public String getHexPrivateKey() {
+        return byteArrayToHex(privateKey);
+    }
+
+    public String getHexPublicKey32() {
+        return byteArrayToHex(publicKey32);
+    }
+
+    public String getHexPublicKey64() {
+        return byteArrayToHex(publicKey64);
+    }
+
+    private String byteArrayToHex(byte[] a) {
+
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i<a.length; i++) {
+            byte b = a[i];
+            if (i == 0 && b == 0) {
+                continue;
+            }
+
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
+    }
+
     public String getTerraAddress() {
         byte[] sha256Hashed = Sha256.hash(publicKey32);
         byte[] ripemd160Hashed = Ripemd160.getHash(sha256Hashed);

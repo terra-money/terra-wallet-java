@@ -2,6 +2,8 @@ package money.terra.terrawallet;
 
 import org.json.JSONObject;
 
+import java.math.BigInteger;
+
 public class TerraWalletSDK {
 
     public static String[] getNewWallet() {
@@ -15,9 +17,9 @@ public class TerraWalletSDK {
     public static String[] getNewWalletFromSeed(String mnemonic, int bip) {
         WalletModel wallet = KeyPair.generate(mnemonic, bip);
         try {
-            String hexPrivateKey = KeyPair.byteArrayToHex(wallet.privateKey);
-            String hexPublicKey32 = KeyPair.byteArrayToHex(wallet.publicKey32);
-            String hexPublicKey64 = KeyPair.byteArrayToHex(wallet.publicKey64); //'un'compressed public key.
+            String hexPrivateKey = wallet.getHexPrivateKey();
+            String hexPublicKey32 = wallet.getHexPublicKey32();
+            String hexPublicKey64 = wallet.getHexPublicKey64(); //'un'compressed public key.
             String terraAddress = wallet.getTerraAddress();
             return new String[]{hexPrivateKey, hexPublicKey32, hexPublicKey64, terraAddress, mnemonic};
         } catch (Exception e) {
@@ -32,8 +34,6 @@ public class TerraWalletSDK {
                             String hexPrivateKey,
                             String hexPublicKey) throws Exception {
 
-        Sign sign = new Sign(hexPrivateKey, hexPublicKey, sequence, account_number, chain_id);
-
-        return sign.sign(message);
+        return new Sign(hexPrivateKey, hexPublicKey, sequence, account_number, chain_id).sign(message);
     }
 }

@@ -3,6 +3,7 @@ package money.terra.terrawallet;
 import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.MnemonicUtils;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
 
 public class KeyPair {
@@ -34,19 +35,4 @@ public class KeyPair {
             return null;
         }
     }
-
-    static String byteArrayToHex(byte[] a) {
-        StringBuilder sb = new StringBuilder();
-        for(int i=0; i<a.length; i++) {
-            byte b = a[i];
-            if (i == 0 && b == 0) {
-                continue;
-            }
-
-            sb.append(String.format("%02x", b & 0xff));
-        }
-        return sb.toString();
-    }
-
-
 }
