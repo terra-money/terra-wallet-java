@@ -16,13 +16,32 @@ public class TerraWalletSDK {
     }
 
     public static String[] getNewWalletFromSeed(String mnemonic, int bip) {
-        WalletModel wallet = KeyPair.generate(mnemonic, bip);
+        WalletModel wallet = KeyPair.generateFromMnemonic(mnemonic, bip);
         try {
             String hexPrivateKey = wallet.getHexPrivateKey();
             String hexPublicKey32 = wallet.getHexPublicKey32();
             String hexPublicKey64 = wallet.getHexPublicKey64(); //'un'compressed public key.
             String terraAddress = wallet.getTerraAddress();
             return new String[]{hexPrivateKey, hexPublicKey32, hexPublicKey64, terraAddress, mnemonic};
+        } catch (Exception e) {
+            return new String[]{"", "", "", "", ""};
+        }
+    }
+
+    /**
+     * Generate new wallet from private key
+     * 
+     * @param privkey secp256k1 private key in hex string
+     * @return String[] Returns initialized wallet array
+     */
+    public static String[] getNewWalletFromPrivkey(String privkey) {
+        try {
+            WalletModel wallet = KeyPair.generateFromPrivkey(privkey);
+            String hexPrivateKey = wallet.getHexPrivateKey();
+            String hexPublicKey32 = wallet.getHexPublicKey32();
+            String hexPublicKey64 = wallet.getHexPublicKey64(); //'un'compressed public key.
+            String terraAddress = wallet.getTerraAddress();
+            return new String[]{hexPrivateKey, hexPublicKey32, hexPublicKey64, terraAddress, wallet.mnemonic};
         } catch (Exception e) {
             return new String[]{"", "", "", "", ""};
         }
