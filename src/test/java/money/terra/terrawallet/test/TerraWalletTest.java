@@ -3,6 +3,8 @@ package money.terra.terrawallet.test;
 import jdk.vm.ci.code.site.Call;
 import money.terra.terrawallet.TerraWalletSDK;
 import money.terra.terrawallet.WalletModel;
+import org.web3j.crypto.ECKeyPair;
+import org.web3j.crypto.Keys;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -77,6 +79,46 @@ public class TerraWalletTest {
             Assert.assertEquals("recovered[" + i + "], address is wrong.", wallets.get(i)[3], address);
         }
 
+    }
+
+    @Test
+    public void walletGenerateFromPrivKeyTest() throws Exception {
+        final int count = 100;
+        ArrayList<String[]> wallets = new ArrayList();
+
+        for (int i = 0; i < count; i++) {
+            ECKeyPair kp = Keys.createEcKeyPair();
+
+            String key = kp.getPrivateKey().toString(16);
+            String[] wallet = TerraWalletSDK.getNewWalletFromPrivkey(key);
+
+            String privateKey = wallet[0];
+            String publicKey = wallet[1];
+            String publicKey64 = wallet[2];
+            String address = wallet[3];
+            Assert.assertEquals("generated[" + i + "], privateKey is wrong.", 64, privateKey.length());
+            Assert.assertEquals("generated[" + i + "], publicKey32 is wrong." + publicKey, 66, publicKey.length());
+            Assert.assertEquals("generated[" + i + "], publicKey64 is wrong." + publicKey64, 130, publicKey64.length());
+
+            wallets.add(wallet);
+        }
+
+        for (int i = 0; i < wallets.size(); i++) {
+            String key = wallets.get(i)[0];
+            String[] wallet = TerraWalletSDK.getNewWalletFromPrivkey(key);
+
+            String privateKey = wallet[0];
+            String publicKey = wallet[1];   //compressed public key.
+            String publicKey64 = wallet[2];   //'un'compressed public key.
+            String address = wallet[3];
+
+            //check privateKey(recovered and generated is equal)
+            Assert.assertEquals("recovered[" + i + "], privateKey is wrong.", wallets.get(i)[0], privateKey);
+            //check publicKey(recovered and generated is equal)
+            Assert.assertEquals("recovered[" + i + "], publicKey is wrong.", wallets.get(i)[1], publicKey);
+            //check address(recovered and generated is equal)
+            Assert.assertEquals("recovered[" + i + "], address is wrong.", wallets.get(i)[3], address);
+        }
     }
 
     @Test
