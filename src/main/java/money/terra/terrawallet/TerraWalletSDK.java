@@ -1,5 +1,6 @@
 package money.terra.terrawallet;
 
+import money.terra.terrawallet.library.Bech32;
 import org.json.JSONObject;
 
 import java.math.BigInteger;
@@ -35,5 +36,15 @@ public class TerraWalletSDK {
                             String hexPublicKey) throws Exception {
 
         return new Sign(hexPrivateKey, hexPublicKey, sequence, account_number, chain_id).sign(message);
+    }
+
+    public static boolean isValidAddress(String address) {
+        try {
+            Bech32.HrpAndData result = Bech32.bech32Decode(address);
+            String recovered = Bech32.bech32Encode(result.hrp, result.data);
+            return recovered.equals(address);
+        }catch(Exception e) {
+            return false;
+        }
     }
 }

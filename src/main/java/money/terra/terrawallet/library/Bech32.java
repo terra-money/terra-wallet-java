@@ -32,6 +32,53 @@ public class Bech32 {
         return new String(ret);
     }
 
+    public static HrpAndData bech32Decode(String bech) {
+
+        if (!bech.equals(bech.toLowerCase()) && !bech.equals(bech.toUpperCase()))  {
+            throw new IllegalArgumentException("bech32 cannot mix upper and lower case");
+        }
+
+        byte[] buffer = bech.getBytes();
+        for (byte b : buffer) {
+            if (b < 0x21 || b > 0x7e) throw new IllegalArgumentException("bech32 characters out of range");
+        }
+
+        bech = bech.toLowerCase();
+        int pos = bech.lastIndexOf("1");
+        if (pos < 1) {
+            throw new IllegalArgumentException("bech32 missing separator");
+        } else if (pos + 7 > bech.length()) {
+            throw new IllegalArgumentException("bech32 separator misplaced");
+        } else if (bech.length() < 8) {
+            throw new IllegalArgumentException("bech32 input too short");
+        } else if (bech.length() > 90) {
+            throw new IllegalArgumentException("bech32 input too long");
+        }
+
+        String s = bech.substring(pos + 1);
+        for (int i = 0; i < s.length(); i++) {
+            if (CHARSET.indexOf(s.charAt(i)) == -1) {
+                throw new IllegalArgumentException("bech32 characters  out of range");
+            }
+        }
+
+        byte[] hrp = bech.substring(0, pos).getBytes();
+
+        byte[] data = new byte[bech.length() - pos - 1];
+        for (int j = 0, i = pos + 1; i < bech.length(); i++, j++) {
+            data[j] = (byte)CHARSET.indexOf(bech.charAt(i));
+        }
+
+        if (!verifyChecksum(hrp, data)) {
+            throw new IllegalArgumentException("invalid bech32 checksum");
+        }
+
+        byte[] ret = new byte[data.length - 6];
+        System.arraycopy(data, 0, ret, 0, data.length - 6);
+
+        return new HrpAndData(hrp, ret);
+    }
+
     private static int polymod(byte[] values)  {
 
         final int[] GENERATORS = { 0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3 };
@@ -47,6 +94,17 @@ public class Bech32 {
         }
 
         return chk;
+    }
+
+    private static boolean verifyChecksum(byte[] hrp, byte[] data) {
+
+        byte[] exp = hrpExpand(hrp);
+
+        byte[] values = new byte[exp.length + data.length];
+        System.arraycopy(exp, 0, values, 0, exp.length);
+        System.arraycopy(data, 0, values, exp.length, data.length);
+
+        return (1 == polymod(values));
     }
 
     private static byte[] hrpExpand(byte[] hrp) {
@@ -121,5 +179,12 @@ public class Bech32 {
         }
 
         return result.array();
+    }
+
+    public static class HrpAndData {
+        public byte[] hrp;
+        public byte[] data;
+
+        public HrpAndData(byte[] hrp, byte[] data) { this.hrp = hrp; this.data = data; }
     }
 }

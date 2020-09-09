@@ -16,6 +16,20 @@ import java.util.ArrayList;
 public class TerraWalletTest {
 
     @Test
+    public void addressValidTest() throws Exception {
+        boolean valid1 = TerraWalletSDK.isValidAddress("terra14aqr0fwhsh334qpeu39wuzdt9hkw2pwvwnyvh6");
+        boolean valid2 = TerraWalletSDK.isValidAddress("terra14aqr0fwhsh334qpeu39wuzdt9hkw2pwvwny");
+        boolean valid3 = TerraWalletSDK.isValidAddress("terra14aqr0fwhsh334qpeu39wuzdt9hkw2paaanyvh6");
+        boolean valid4 = TerraWalletSDK.isValidAddress("terrb14aqr0fwhsh334qpeu39wuzdt9hkw2paaanyvh6");
+
+        Assert.assertEquals("valid1 ", true, valid1);
+        Assert.assertEquals("valid2 ", false, valid2);
+        Assert.assertEquals("valid3 ", false, valid3);
+        Assert.assertEquals("valid4 ", false, valid4);
+
+    }
+
+    @Test
     public void walletGenerateAndRecoverTest() throws Exception {
         final int count = 100;
 
