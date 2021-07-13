@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-public class Sign {
+public class Signer {
 
     private byte[] privateKey;
     private byte[] publicKey;
@@ -24,7 +24,7 @@ public class Sign {
     private String accountNumber;
     private String chainId;
 
-    Sign(String hexPrivateKey, String hexPublicKey, String sequence, String accountNumber, String chainId) {
+    Signer(String hexPrivateKey, String hexPublicKey, String sequence, String accountNumber, String chainId) {
         this.privateKey = new BigInteger(hexPrivateKey, 16).toByteArray();
         this.publicKey = new BigInteger(hexPublicKey, 16).toByteArray();
         this.sequence = sequence;

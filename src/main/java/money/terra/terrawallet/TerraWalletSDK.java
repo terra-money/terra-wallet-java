@@ -35,7 +35,7 @@ public class TerraWalletSDK {
                             String hexPrivateKey,
                             String hexPublicKey) throws Exception {
 
-        return new Sign(hexPrivateKey, hexPublicKey, sequence, account_number, chain_id).sign(message);
+        return new Signer(hexPrivateKey, hexPublicKey, sequence, account_number, chain_id).sign(message);
     }
 
     public static boolean isValidAddress(String address) {
