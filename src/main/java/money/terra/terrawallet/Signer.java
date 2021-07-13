@@ -91,8 +91,8 @@ public class Signer {
 
         ECKeyPair keyPair = Bip32ECKeyPair.create(this.privateKey);
         Sign.SignatureData signature = Sign.signMessage(messageHash, keyPair, false);
-        byte[] r = signature.r.toByteArray();
-        byte[] s = signature.s.toByteArray();
+        byte[] r = signature.getR();
+        byte[] s = signature.getS();
         int index = 0;
 
         int start = (r.length > 32) ? r.length - 32 : 0;
