@@ -1,3 +1,6 @@
+# DEPRECATED
+not maintained
+
 # terra-wallet-java
 for android
 

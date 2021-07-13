@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.ECDSASignature;
 import org.web3j.crypto.ECKeyPair;
+import org.web3j.crypto.Sign;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -86,10 +87,10 @@ public class Sign {
     }
 
     private byte[] signWithPrivateKey(String message) {
-        byte[] hashedMessageBytes = Sha256.hash(message.getBytes());
+        byte[] messageHash = Sha256.hash(message.getBytes());
 
-        ECKeyPair keyPair2 = Bip32ECKeyPair.create(this.privateKey);
-        ECDSASignature signature = keyPair2.sign(hashedMessageBytes);
+        ECKeyPair keyPair = Bip32ECKeyPair.create(this.privateKey);
+        ECDSASignature signature = Sign.signMessage(messageHash, keyPair, false);
         byte[] r = signature.r.toByteArray();
         byte[] s = signature.s.toByteArray();
         int index = 0;
