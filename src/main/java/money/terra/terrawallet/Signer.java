@@ -90,7 +90,7 @@ public class Signer {
         byte[] messageHash = Sha256.hash(message.getBytes());
 
         ECKeyPair keyPair = Bip32ECKeyPair.create(this.privateKey);
-        ECDSASignature signature = Sign.signMessage(messageHash, keyPair, false);
+        Sign.SignatureData signature = Sign.signMessage(messageHash, keyPair, false);
         byte[] r = signature.r.toByteArray();
         byte[] s = signature.s.toByteArray();
         int index = 0;
