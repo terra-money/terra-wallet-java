@@ -1,7 +1,10 @@
 package money.terra.terrawallet;
 
 import com.google.gson.Gson;
-
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.TreeMap;
 import money.terra.terrawallet.library.Base64;
 import money.terra.terrawallet.library.Sha256;
 import org.json.JSONArray;
@@ -11,11 +14,6 @@ import org.web3j.crypto.ECDSASignature;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Sign;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.TreeMap;
-
 public class Signer {
 
     private byte[] privateKey;
@@ -23,13 +21,27 @@ public class Signer {
     private String sequence;
     private String accountNumber;
     private String chainId;
+    private String timeoutHeight;
+    private String feeGranter;
 
-    Signer(String hexPrivateKey, String hexPublicKey, String sequence, String accountNumber, String chainId) {
+    // options contain following new properties
+    // - timeout_height: block height
+    // - fee_granter: fee granter address
+    Signer(String hexPrivateKey, String hexPublicKey, String sequence,
+                 String accountNumber, String chainId, JSONObject options) {
         this.privateKey = new BigInteger(hexPrivateKey, 16).toByteArray();
         this.publicKey = new BigInteger(hexPublicKey, 16).toByteArray();
         this.sequence = sequence;
         this.accountNumber = accountNumber;
         this.chainId = chainId;
+
+        this.timeoutHeight = options.optString("timeout_height", null);
+        this.feeGranter = options.optString("fee_granter", null);
+    }
+
+    Signer(String hexPrivateKey, String hexPublicKey, String sequence,
+                 String accountNumber, String chainId) {
+        this(hexPrivateKey, hexPublicKey, sequence, accountNumber, chainId, new JSONObject());
     }
 
     public JSONObject sign(JSONObject message) throws Exception {
@@ -64,9 +76,10 @@ public class Signer {
         message.put("fee", fee);
         message.put("memo", (memo == null ? "" : memo));
         message.put("msgs", json.get("msg"));
-//        #warning("msgs : 잘 맞춰서 넣어야한다.")
         message.put("sequence", this.sequence);
-
+        if (this.timeoutHeight != null) {
+            message.put("timeout_height", this.timeout_height);
+        }
 
         return message;
     }
@@ -90,17 +103,18 @@ public class Signer {
         byte[] messageHash = Sha256.hash(message.getBytes());
 
         ECKeyPair keyPair = Bip32ECKeyPair.create(this.privateKey);
-        Sign.SignatureData signature = Sign.signMessage(messageHash, keyPair, false);
+        Sign.SignatureData signature =
+                Sign.signMessage(messageHash, keyPair, false);
         byte[] r = signature.getR();
         byte[] s = signature.getS();
         int index = 0;
 
         int start = (r.length > 32) ? r.length - 32 : 0;
         byte[] result = new byte[r.length + s.length - start];
-        for(int i=start; i<r.length; i++) {
+        for (int i = start; i < r.length; i++) {
             result[index++] = r[i];
         }
-        for(int i=0; i<s.length; i++) {
+        for (int i = 0; i < s.length; i++) {
             result[index++] = s[i];
         }
 
@@ -111,20 +125,34 @@ public class Signer {
         JSONArray array = new JSONArray();
         array.put(signature);
         json.put("signatures", array);
+        if (this.timeoutHeight != null) {
+            json.put("timeout_height", this.timeoutHeight);
+        }
+
         return json;
     }
 
     private JSONObject createBroadcastBody(JSONObject json, String returnType) {
         JSONObject data = new JSONObject();
+        JSONObject sequences = new JSONArray();
+        sequences.put(this.sequence);
+
         data.put("tx", json);
         data.put("mode", returnType);
+
+        // optional parameters
+        data.put("sequences", sequences);
+        if (this.feeGranter != null) {
+            data.put("fee_granter", this.feeGranter);
+        }
+
         return data;
     }
 
     private TreeMap jsonSort(JSONObject signMessage) throws Exception {
         TreeMap<String, Object> map = new TreeMap<String, Object>();
 
-        for (Iterator<String> it = signMessage.keys(); it.hasNext(); ) {
+        for (Iterator<String> it = signMessage.keys(); it.hasNext();) {
             String key = it.next();
             Object obj = signMessage.get(key);
 
@@ -142,7 +170,7 @@ public class Signer {
 
     private ArrayList jsonSort(JSONArray array) throws Exception {
         ArrayList<Object> result = new ArrayList<>();
-        for(int i=0; i<array.length(); i++) {
+        for (int i = 0; i < array.length(); i++) {
             Object obj = array.get(i);
 
             if (obj instanceof JSONObject) {

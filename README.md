@@ -66,16 +66,16 @@ public class Example {
                                    String hexPrivateKey,
                                    String hexPublicKey) throws Exception {
 
-        // Parameter Info (for Testnet, https://soju-lcd.terra.dev)
+        // Parameter Info (for Testnet, https://bombay-lcd.terra.dev)
 
         // tx
         // transfer ex) "{\"msg\":[{\"type\":\"bank/MsgSend\",\"value\":{\"from_address\":\"terra14aqr0fwhsh334qpeu39wuzdt9hkw2pwvwnyvh6\",\"to_address\":\"terra1y56xnxa2aaxtuc3rpntgxx0qchyzy2wp7dqgy3\",\"amount\":[{\"denom\":\"uluna\",\"amount\":\"50\"}]}}],\"fee\":{\"amount\":[{\"denom\":\"uluna\",\"amount\":\"50\"}],\"gas\":\"200000\"},\"signatures\":null,\"memo\":\"memo\"}"
 
         // sequence, accountNumber
-        // https://soju-lcd.terra.dev/auth/accounts/{YOUR ADDRESS}
+        // https://bombay-lcd.terra.dev/auth/accounts/{YOUR ADDRESS}
 
-        // chainId (ex: 'soju-0013')
-        // https://soju-lcd.terra.dev/blocks/latest
+        // chainId (ex: 'bombay-11')
+        // https://bombay-lcd.terra.dev/blocks/latest
 
         // hexPrivateKey, ex) 99b555956f56a2889c78594cfac8d8aa6d0a6e75bd3ccfefb5248b6b83d8096c
         // hexPublicKey,  ex) 0352105a7248e226cbb913aad4d5997cf03db9e6caf03dd9a1d168442325d4ff1f
@@ -85,7 +85,7 @@ public class Example {
             return requestBody;
 
             // you can send a 'requestBody' to
-            // 'https://soju-lcd.terra.dev/txs' POST
+            // 'https://bombay-lcd.terra.dev/txs' POST
         }catch(Exception e) {
             return "";
         }

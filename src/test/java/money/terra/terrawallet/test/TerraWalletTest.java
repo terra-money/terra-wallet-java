@@ -86,7 +86,7 @@ public class TerraWalletTest {
         String hexPublicKey = wallet[1];
         String address = wallet[3];
 
-        String chainId = "soju-0014";
+        String chainId = "bombay-11";
         String toAddress = "terra1y56xnxa2aaxtuc3rpntgxx0qchyzy2wp7dqgy3";
         String transferBalance = "1000000"; //1 Luna
 
@@ -122,7 +122,7 @@ public class TerraWalletTest {
         String hexPublicKey = wallet[1];
         String address = wallet[3];
 
-        String chainId = "soju-0014";
+        String chainId = "bombay-11";
         String toCurrency = "usdr"; //SDT
         String swapBalance = "1000000"; //1Luna
 
@@ -163,6 +163,10 @@ public class TerraWalletTest {
 
             accountNumber = value.getString("account_number");
             sequence = value.getString("sequence");
+            
+            JSONObject balanceInfo = httpConnection("/bank/balances/" + address, true);
+            JSONObject coins = balanceInfo.getJSONArray("result");
+
             luna = 0;
             for (int i = 0; i < coins.length(); i++) {
                 JSONObject coin = coins.getJSONObject(i);
@@ -225,7 +229,7 @@ public class TerraWalletTest {
 
         BufferedReader br = null;
         try {
-            URL url = new URL("https://soju-fcd.terra.dev" + targetUrl);
+            URL url = new URL("https://bombay-lcd.terra.dev" + targetUrl);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Accept", "application/json");
