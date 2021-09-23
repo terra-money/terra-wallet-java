@@ -78,7 +78,7 @@ public class Signer {
         message.put("msgs", json.get("msg"));
         message.put("sequence", this.sequence);
         if (this.timeoutHeight != null) {
-            message.put("timeout_height", this.timeout_height);
+            message.put("timeout_height", this.timeoutHeight);
         }
 
         return message;
@@ -134,7 +134,7 @@ public class Signer {
 
     private JSONObject createBroadcastBody(JSONObject json, String returnType) {
         JSONObject data = new JSONObject();
-        JSONObject sequences = new JSONArray();
+        JSONArray sequences = new JSONArray();
         sequences.put(this.sequence);
 
         data.put("tx", json);

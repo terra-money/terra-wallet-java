@@ -159,13 +159,12 @@ public class TerraWalletTest {
         try {
             JSONObject accountInfo = httpConnection("/auth/accounts/" + address, true);
             JSONObject value = accountInfo.getJSONObject("result").getJSONObject("value");
-            JSONArray coins = value.getJSONArray("coins");
 
             accountNumber = value.getString("account_number");
             sequence = value.getString("sequence");
             
             JSONObject balanceInfo = httpConnection("/bank/balances/" + address, true);
-            JSONObject coins = balanceInfo.getJSONArray("result");
+            JSONArray coins = balanceInfo.getJSONArray("result");
 
             luna = 0;
             for (int i = 0; i < coins.length(); i++) {
