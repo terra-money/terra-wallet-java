@@ -41,6 +41,11 @@ public class TerraWalletSDK {
     public static boolean isValidAddress(String address) {
         try {
             Bech32.HrpAndData result = Bech32.bech32Decode(address);
+            String hrp = new String(result.hrp);
+            if(!hrp.equals("terra")) {
+                return false;
+            }
+
             String recovered = Bech32.bech32Encode(result.hrp, result.data);
             return recovered.equals(address);
         }catch(Exception e) {
